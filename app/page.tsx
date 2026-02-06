@@ -159,6 +159,12 @@ export default function Home() {
   const [filterSpecies, setFilterSpecies] = useState<string>('all')
   const [filterSpecialNeeds, setFilterSpecialNeeds] = useState(false)
 
+  // Autonomous agent states
+  const [autonomousSuggestions, setAutonomousSuggestions] = useState<AnimalMatch[]>([])
+  const [showAutonomousPanel, setShowAutonomousPanel] = useState(false)
+  const [lastScanTime, setLastScanTime] = useState<Date | null>(null)
+  const [scanningActive, setScanningActive] = useState(false)
+
   // Assessment form data
   const [formData, setFormData] = useState<AssessmentData>({
     homeType: '',
@@ -196,6 +202,45 @@ export default function Home() {
   const [trialCheckIns, setTrialCheckIns] = useState<{ day: number, notes: string, concerns: string[] }[]>([])
 
   const totalSteps = 5
+
+  // Autonomous scanning - runs every 30 seconds when on results/summary screens
+  useEffect(() => {
+    if ((currentScreen === 'results' || currentScreen === 'summary') && formData.homeType) {
+      const runAutonomousScan = async () => {
+        setScanningActive(true)
+        const message = buildAssessmentMessage()
+
+        try {
+          const result = await callAIAgent(message, '6985995e1caa4e686dd66faf')
+
+          if (result.success && result.response.status === 'success') {
+            const data = result.response.result as MatchCoordinatorResult
+            const newSuggestions = (data.top_recommendations || []).filter(
+              suggestion => !matchResults.some(existing => existing.animal_id === suggestion.animal_id)
+            )
+
+            if (newSuggestions.length > 0) {
+              setAutonomousSuggestions(prev => [...newSuggestions, ...prev].slice(0, 5))
+              setShowAutonomousPanel(true)
+            }
+          }
+        } catch (error) {
+          console.error('Autonomous scan error:', error)
+        } finally {
+          setScanningActive(false)
+          setLastScanTime(new Date())
+        }
+      }
+
+      // Initial scan
+      runAutonomousScan()
+
+      // Set up interval for continuous scanning (every 30 seconds)
+      const intervalId = setInterval(runAutonomousScan, 30000)
+
+      return () => clearInterval(intervalId)
+    }
+  }, [currentScreen, formData.homeType])
 
   // Cost calculator based on animal type and size
   const calculateCosts = (animalType: string, size: string = 'medium') => {
@@ -1267,9 +1312,105 @@ export default function Home() {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
         <div className="container mx-auto px-4 py-8">
+          {/* Autonomous Suggestions Panel */}
+          {showAutonomousPanel && autonomousSuggestions.length > 0 && (
+            <div className="mb-6 relative">
+              <Card className="border-2" style={{ borderColor: '#7CB69D', backgroundColor: '#F0F7F4' }}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#7CB69D' }}>
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg" style={{ color: '#7CB69D' }}>
+                          New Matches Found!
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {scanningActive ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              Scanning for new arrivals...
+                            </span>
+                          ) : (
+                            `Last scanned: ${lastScanTime ? new Date(lastScanTime).toLocaleTimeString() : 'Just now'}`
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAutonomousPanel(false)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-3">
+                    {autonomousSuggestions.slice(0, 3).map((suggestion) => {
+                      const mockAnimal = mockAnimals.find(a => a.animal_id === suggestion.animal_id)
+                      return (
+                        <div key={suggestion.animal_id} className="bg-white p-3 rounded-lg border-2 border-dashed" style={{ borderColor: '#7CB69D' }}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="text-2xl">
+                              {suggestion.species === 'dog' ? '🐕' : '🐱'}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm">{suggestion.animal_name}</h4>
+                              <p className="text-xs text-gray-600">{suggestion.breed}</p>
+                            </div>
+                            <div className="px-2 py-1 rounded-full text-white text-xs font-bold" style={{ backgroundColor: '#7CB69D' }}>
+                              {suggestion.overall_compatibility_score}%
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            className="w-full text-white text-xs"
+                            style={{ backgroundColor: '#E07A5F' }}
+                            onClick={() => {
+                              setSelectedAnimal(suggestion)
+                              setCurrentScreen('detail')
+                              setShowAutonomousPanel(false)
+                            }}
+                          >
+                            View Match
+                          </Button>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {autonomousSuggestions.length > 3 && (
+                    <p className="text-xs text-center text-gray-600 mt-3">
+                      +{autonomousSuggestions.length - 3} more autonomous suggestions available
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           <div className="mb-6">
-            <h1 className="text-4xl font-bold mb-2" style={{ color: '#7CB69D' }}>Your Perfect Matches</h1>
-            <p className="text-gray-600">Based on your lifestyle and preferences</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold mb-2" style={{ color: '#7CB69D' }}>Your Perfect Matches</h1>
+                <p className="text-gray-600">Based on your lifestyle and preferences</p>
+              </div>
+              {/* Autonomous Scan Status Badge */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border">
+                <Zap className="w-4 h-4" style={{ color: '#7CB69D' }} />
+                <div className="text-sm">
+                  <p className="font-medium text-gray-900">Auto-Scan Active</p>
+                  <p className="text-xs text-gray-500">Checking for new arrivals</p>
+                </div>
+                {autonomousSuggestions.length > 0 && (
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: '#E07A5F' }}>
+                    {autonomousSuggestions.length}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Trial Period Reminder */}
