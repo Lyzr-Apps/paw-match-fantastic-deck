@@ -1,0 +1,116 @@
+{
+  "agent_name": "Adopter Profile Agent",
+  "agent_id": "6985990bfe576c19864be92c",
+  "agent_purpose": "adopter_profile_analysis",
+  "description": "Analyzes lifestyle questionnaire responses to generate comprehensive adopter compatibility profile with scored dimensions and detailed lifestyle factors",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "profile_summary": "string",
+      "activity_level": "number",
+      "experience_score": "number",
+      "home_environment_rating": "number",
+      "time_availability": "number",
+      "lifestyle_factors": {
+        "household_composition": "string",
+        "living_situation": "string",
+        "work_schedule": "string",
+        "exercise_commitment": "string",
+        "financial_readiness": "string",
+        "special_considerations": "string"
+      },
+      "strengths": [
+        "string"
+      ],
+      "concerns": [
+        "string"
+      ],
+      "ideal_pet_characteristics": [
+        "string"
+      ]
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string",
+      "analysis_version": "string"
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "profile_summary": "Adopter has moderate activity levels, a stable living situation, and significant experience with cats, though is new to dog ownership. They have a flexible work schedule and express thoughtful preferences, making them well-suited for a calm, affectionate pet.",
+      "activity_level": 6,
+      "experience_score": 5,
+      "home_environment_rating": 4,
+      "time_availability": 7,
+      "lifestyle_factors": {
+        "household_composition": "Single or partnered adult(s) in a 2-bedroom apartment; no current pets.",
+        "living_situation": "2-bedroom apartment with a small balcony, no private yard.",
+        "work_schedule": "Work from home 3 days per week and in-office 2 days, allowing moderate daytime flexibility.",
+        "exercise_commitment": "30-minute walks daily and occasional weekend hikes, indicating a commitment to routine activity.",
+        "financial_readiness": "Not explicitly mentioned, but prior long-term pet ownership suggests realistic expectations.",
+        "special_considerations": "Open to pets with special needs; no current pet or household allergies or restrictions reported."
+      },
+      "strengths": [
+        "Previous long-term pet ownership experience",
+        "Flexible work-from-home schedule",
+        "Willingness to adopt special needs pets"
+      ],
+      "concerns": [
+        "No prior dog ownership experience",
+        "Limited private outdoor space"
+      ],
+      "ideal_pet_characteristics": [
+        "Calm temperament",
+        "Affectionate nature",
+        "Adaptable to apartment living"
+      ]
+    },
+    "metadata": {
+      "agent_name": "Adopter Profile Agent",
+      "timestamp": "2024-06-12T10:29:00Z",
+      "analysis_version": "1.0"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-02-06T07:36:00.386587",
+  "test_message_used": "Hello, provide a sample response",
+  "actual_test_response": {
+    "status": "success",
+    "result": {
+      "profile_summary": "Adopter has moderate activity levels, a stable living situation, and significant experience with cats, though is new to dog ownership. They have a flexible work schedule and express thoughtful preferences, making them well-suited for a calm, affectionate pet.",
+      "activity_level": 6,
+      "experience_score": 5,
+      "home_environment_rating": 4,
+      "time_availability": 7,
+      "lifestyle_factors": {
+        "household_composition": "Single or partnered adult(s) in a 2-bedroom apartment; no current pets.",
+        "living_situation": "2-bedroom apartment with a small balcony, no private yard.",
+        "work_schedule": "Work from home 3 days per week and in-office 2 days, allowing moderate daytime flexibility.",
+        "exercise_commitment": "30-minute walks daily and occasional weekend hikes, indicating a commitment to routine activity.",
+        "financial_readiness": "Not explicitly mentioned, but prior long-term pet ownership suggests realistic expectations.",
+        "special_considerations": "Open to pets with special needs; no current pet or household allergies or restrictions reported."
+      },
+      "strengths": [
+        "Previous long-term pet ownership experience",
+        "Flexible work-from-home schedule",
+        "Willingness to adopt special needs pets"
+      ],
+      "concerns": [
+        "No prior dog ownership experience",
+        "Limited private outdoor space"
+      ],
+      "ideal_pet_characteristics": [
+        "Calm temperament",
+        "Affectionate nature",
+        "Adaptable to apartment living"
+      ]
+    },
+    "metadata": {
+      "agent_name": "Adopter Profile Agent",
+      "timestamp": "2024-06-12T10:29:00Z",
+      "analysis_version": "1.0"
+    }
+  },
+  "test_passed": true
+}

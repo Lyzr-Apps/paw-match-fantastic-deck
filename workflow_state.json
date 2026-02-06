@@ -1,0 +1,35 @@
+{
+  "workflow_name": "PetMatch Pro Adoption Compatibility System",
+  "workflow_type": "manager_subagent",
+  "created_at": "2026-02-06",
+  "agents": {
+    "manager": {
+      "agent_id": "6985995e1caa4e686dd66faf",
+      "name": "Match Coordinator Agent",
+      "role": "manager",
+      "description": "Orchestrates the compatibility analysis workflow, routes adopter data to sub-agents, aggregates profile analysis with animal assessments, and generates final ranked recommendations with detailed compatibility explanations"
+    },
+    "sub_agents": [
+      {
+        "agent_id": "6985990bfe576c19864be92c",
+        "name": "Adopter Profile Agent",
+        "role": "sub_agent",
+        "description": "Analyzes questionnaire responses to build comprehensive adopter profile including activity level, experience score, home environment rating, time availability, and lifestyle compatibility factors"
+      },
+      {
+        "agent_id": "698599317551cb7920ffe90a",
+        "name": "Animal Compatibility Agent",
+        "role": "sub_agent",
+        "description": "Evaluates each available animal's behavioral profile, needs, and temperament against the adopter profile to calculate compatibility scores across multiple dimensions"
+      }
+    ]
+  },
+  "workflow_trigger": "Find My Match button on Assessment Screen",
+  "response_schemas": {
+    "manager": "response_schemas/match_coordinator_agent_response.json",
+    "sub_agents": {
+      "adopter_profile": "response_schemas/adopter_profile_agent_response.json",
+      "animal_compatibility": "response_schemas/animal_compatibility_agent_response.json"
+    }
+  }
+}

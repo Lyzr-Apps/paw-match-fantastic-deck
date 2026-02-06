@@ -1,0 +1,133 @@
+{
+  "agent_name": "Animal Compatibility Agent",
+  "agent_id": "698599317551cb7920ffe90a",
+  "agent_purpose": "animal_compatibility_analysis",
+  "description": "Evaluates available animals against adopter profile to calculate multi-dimensional compatibility scores and generate ranked match recommendations",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "total_animals_evaluated": "number",
+      "matches": [
+        {
+          "animal_id": "string",
+          "animal_name": "string",
+          "species": "string",
+          "breed": "string",
+          "age": "string",
+          "overall_compatibility_score": "number",
+          "compatibility_breakdown": {
+            "energy_match": "number",
+            "space_compatibility": "number",
+            "experience_alignment": "number",
+            "time_requirements_match": "number",
+            "special_care_compatibility": "number"
+          },
+          "match_explanation": "string",
+          "strengths": [
+            "string"
+          ],
+          "considerations": [
+            "string"
+          ],
+          "recommended_next_steps": [
+            "string"
+          ]
+        }
+      ],
+      "matching_summary": "string"
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string",
+      "matching_version": "string"
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "total_animals_evaluated": 3,
+      "matches": [
+        {
+          "animal_id": "max_tabby_cat_3yr",
+          "animal_name": "Max",
+          "species": "cat",
+          "breed": "tabby",
+          "age": "3 years (adult)",
+          "overall_compatibility_score": 95,
+          "compatibility_breakdown": {
+            "energy_match": 95,
+            "space_compatibility": 100,
+            "experience_alignment": 100,
+            "time_requirements_match": 95,
+            "special_care_compatibility": 100
+          },
+          "match_explanation": "Max is an ideal fit for an adopter seeking a calm, affectionate cat in an apartment setting. The adopter's cat experience and high availability align perfectly with Max\u2019s low-maintenance needs and temperament, ensuring both comfort and companionship.",
+          "strengths": [
+            "Calm and affectionate personality",
+            "Perfectly suited to apartment life",
+            "Low maintenance and easy care"
+          ],
+          "considerations": [
+            "None\u2014excellent match"
+          ],
+          "recommended_next_steps": [
+            "Arrange a meet and greet with Max",
+            "Review Max\u2019s medical records and transition plan"
+          ]
+        }
+      ],
+      "matching_summary": "Of the three animals evaluated, Max the tabby cat stands out as the strongest match, closely matching the adopter\u2019s preferences, experience, and living environment. Bella the Labrador and Luna the mixed breed are less suitable due to their energy levels, space needs, and species preference, so they were not included as primary recommendations. Max offers the best fit for sustainable adoption and mutual happiness."
+    },
+    "metadata": {
+      "agent_name": "Animal Compatibility Agent",
+      "timestamp": "2024-06-12T18:41:22Z",
+      "matching_version": "1.0"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-02-06T07:36:11.378599",
+  "test_message_used": "Hello, provide a sample response",
+  "actual_test_response": {
+    "status": "success",
+    "result": {
+      "total_animals_evaluated": 3,
+      "matches": [
+        {
+          "animal_id": "max_tabby_cat_3yr",
+          "animal_name": "Max",
+          "species": "cat",
+          "breed": "tabby",
+          "age": "3 years (adult)",
+          "overall_compatibility_score": 95,
+          "compatibility_breakdown": {
+            "energy_match": 95,
+            "space_compatibility": 100,
+            "experience_alignment": 100,
+            "time_requirements_match": 95,
+            "special_care_compatibility": 100
+          },
+          "match_explanation": "Max is an ideal fit for an adopter seeking a calm, affectionate cat in an apartment setting. The adopter's cat experience and high availability align perfectly with Max\u2019s low-maintenance needs and temperament, ensuring both comfort and companionship.",
+          "strengths": [
+            "Calm and affectionate personality",
+            "Perfectly suited to apartment life",
+            "Low maintenance and easy care"
+          ],
+          "considerations": [
+            "None\u2014excellent match"
+          ],
+          "recommended_next_steps": [
+            "Arrange a meet and greet with Max",
+            "Review Max\u2019s medical records and transition plan"
+          ]
+        }
+      ],
+      "matching_summary": "Of the three animals evaluated, Max the tabby cat stands out as the strongest match, closely matching the adopter\u2019s preferences, experience, and living environment. Bella the Labrador and Luna the mixed breed are less suitable due to their energy levels, space needs, and species preference, so they were not included as primary recommendations. Max offers the best fit for sustainable adoption and mutual happiness."
+    },
+    "metadata": {
+      "agent_name": "Animal Compatibility Agent",
+      "timestamp": "2024-06-12T18:41:22Z",
+      "matching_version": "1.0"
+    }
+  },
+  "test_passed": true
+}

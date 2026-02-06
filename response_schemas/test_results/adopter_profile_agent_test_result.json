@@ -1,0 +1,47 @@
+{
+  "agent_name": "Adopter Profile Agent",
+  "agent_id": "6985990bfe576c19864be92c",
+  "test_message": "Living situation: 2-bedroom apartment with small balcony. Work schedule: Work from home 3 days/week, office 2 days. Activity level: 6/10 - daily 30-minute walks, weekend hikes occasionally. Experience: Had 2 cats for 5 years each, never owned dogs. Preferences: Calm temperament, affectionate, open to special needs. Other pets: None currently.",
+  "expected_purpose": "Analyzes adopter questionnaire and returns comprehensive profile with scored dimensions",
+  "timestamp": "2026-02-06T07:36:00.385941",
+  "is_valid_json": true,
+  "validation_errors": [],
+  "actual_response": {
+    "status": "success",
+    "result": {
+      "profile_summary": "Adopter has moderate activity levels, a stable living situation, and significant experience with cats, though is new to dog ownership. They have a flexible work schedule and express thoughtful preferences, making them well-suited for a calm, affectionate pet.",
+      "activity_level": 6,
+      "experience_score": 5,
+      "home_environment_rating": 4,
+      "time_availability": 7,
+      "lifestyle_factors": {
+        "household_composition": "Single or partnered adult(s) in a 2-bedroom apartment; no current pets.",
+        "living_situation": "2-bedroom apartment with a small balcony, no private yard.",
+        "work_schedule": "Work from home 3 days per week and in-office 2 days, allowing moderate daytime flexibility.",
+        "exercise_commitment": "30-minute walks daily and occasional weekend hikes, indicating a commitment to routine activity.",
+        "financial_readiness": "Not explicitly mentioned, but prior long-term pet ownership suggests realistic expectations.",
+        "special_considerations": "Open to pets with special needs; no current pet or household allergies or restrictions reported."
+      },
+      "strengths": [
+        "Previous long-term pet ownership experience",
+        "Flexible work-from-home schedule",
+        "Willingness to adopt special needs pets"
+      ],
+      "concerns": [
+        "No prior dog ownership experience",
+        "Limited private outdoor space"
+      ],
+      "ideal_pet_characteristics": [
+        "Calm temperament",
+        "Affectionate nature",
+        "Adaptable to apartment living"
+      ]
+    },
+    "metadata": {
+      "agent_name": "Adopter Profile Agent",
+      "timestamp": "2024-06-12T10:29:00Z",
+      "analysis_version": "1.0"
+    }
+  },
+  "raw_response": "{\n  \"status\": \"success\",\n  \"result\": {\n    \"profile_summary\": \"Adopter has moderate activity levels, a stable living situation, and significant experience with cats, though is new to dog ownership. They have a flexible work schedule and express thoughtful preferences, making them well-suited for a calm, affectionate pet.\",\n    \"activity_level\": 6,\n    \"experience_score\": 5,\n    \"home_environment_rating\": 4,\n    \"time_availability\": 7,\n    \"lifestyle_factors\": {\n      \"household_composition\": \"Single or partnered adult(s) in a 2-bedroom apartment; no current pets.\",\n      \"living_situation\": \"2-bedroom apartment with a small balcony, no private yard.\",\n      \"work_schedule\": \"Work from home 3 days per week and in-office 2 days, allowing moderate daytime flexibility.\",\n      \"exercise_commitment\": \"30-minute walks daily and occasional weekend hikes, indicating a commitment to routine activity.\",\n      \"financial_readiness\": \"Not explicitly mentioned, but prior long-term pet ownership suggests realistic expectations.\",\n      \"special_considerations\": \"Open to pets with special needs; no current pet or household allergies or restrictions reported.\"\n    },\n    \"strengths\": [\n      \"Previous long-term pet ownership experience\",\n      \"Flexible work-from-home schedule\",\n      \"Willingness to adopt special needs pets\"\n    ],\n    \"concerns\": [\n      \"No prior dog ownership experience\",\n      \"Limited private outdoor space\"\n    ],\n    \"ideal_pet_characteristics\": [\n      \"Calm temperament\",\n      \"Affectionate nature\",\n      \"Adaptable to apartment living\"\n    ]\n  },\n  \"metadata\": {\n    \"agent_name\": \"Adopter Profile Agent\",\n    \"timestamp\": \"2024-06-12T10:29:00Z\",\n    \"analysis_version\": \"1.0\"\n  }\n}"
+}

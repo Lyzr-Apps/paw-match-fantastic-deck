@@ -1,0 +1,111 @@
+{
+  "workflow_name": "PetMatch Pro Adoption Compatibility System",
+  "workflow_version": "1.0",
+  "created_at": "2026-02-06",
+  "workflow_type": "manager_subagent",
+  "trigger": "Find My Match button on Assessment Screen",
+  "nodes": [
+    {
+      "id": "input_node",
+      "type": "Input",
+      "label": "Lifestyle Questionnaire Input",
+      "nodeCategory": "input"
+    },
+    {
+      "id": "match_coordinator",
+      "type": "Agent",
+      "label": "Match Coordinator Agent",
+      "nodeCategory": "agent",
+      "agent_id": "6985995e1caa4e686dd66faf",
+      "agent_name": "Match Coordinator Agent",
+      "agent_role": "manager",
+      "description": "Orchestrates the compatibility analysis workflow, routes adopter data to sub-agents, aggregates profile analysis with animal assessments, and generates final ranked recommendations with detailed compatibility explanations"
+    },
+    {
+      "id": "adopter_profile",
+      "type": "Agent",
+      "label": "Adopter Profile Agent",
+      "nodeCategory": "agent",
+      "agent_id": "6985990bfe576c19864be92c",
+      "agent_name": "Adopter Profile Agent",
+      "agent_role": "sub_agent",
+      "description": "Analyzes questionnaire responses to build comprehensive adopter profile including activity level, experience score, home environment rating, time availability, and lifestyle compatibility factors"
+    },
+    {
+      "id": "animal_compatibility",
+      "type": "Agent",
+      "label": "Animal Compatibility Agent",
+      "nodeCategory": "agent",
+      "agent_id": "698599317551cb7920ffe90a",
+      "agent_name": "Animal Compatibility Agent",
+      "agent_role": "sub_agent",
+      "description": "Evaluates each available animal's behavioral profile, needs, and temperament against the adopter profile to calculate compatibility scores across multiple dimensions"
+    },
+    {
+      "id": "output_node",
+      "type": "Output",
+      "label": "Ranked Match Recommendations",
+      "nodeCategory": "end"
+    }
+  ],
+  "edges": [
+    {
+      "source": "input_node",
+      "target": "match_coordinator"
+    },
+    {
+      "source": "match_coordinator",
+      "target": "adopter_profile"
+    },
+    {
+      "source": "match_coordinator",
+      "target": "animal_compatibility"
+    },
+    {
+      "source": "adopter_profile",
+      "target": "output_node"
+    },
+    {
+      "source": "animal_compatibility",
+      "target": "output_node"
+    }
+  ],
+  "agents": {
+    "manager": {
+      "agent_id": "6985995e1caa4e686dd66faf",
+      "name": "Match Coordinator Agent",
+      "description": "Orchestrates the compatibility analysis workflow, routes adopter data to sub-agents, aggregates profile analysis with animal assessments, and generates final ranked recommendations with detailed compatibility explanations",
+      "role": "Pet Adoption Matching Coordinator",
+      "goal": "Coordinate the complete pet-adopter matching workflow by routing questionnaire data to specialized sub-agents, aggregating their analyses, and synthesizing comprehensive ranked recommendations that optimize for both adopter satisfaction and animal welfare",
+      "provider": "OpenAI",
+      "model": "gpt-4.1",
+      "temperature": 0.3,
+      "top_p": 1,
+      "managed_agents": ["6985990bfe576c19864be92c", "698599317551cb7920ffe90a"]
+    },
+    "sub_agents": [
+      {
+        "agent_id": "6985990bfe576c19864be92c",
+        "name": "Adopter Profile Agent",
+        "description": "Analyzes questionnaire responses to build comprehensive adopter profile including activity level, experience score, home environment rating, time availability, and lifestyle compatibility factors",
+        "role": "Pet Adoption Lifestyle Analyst",
+        "goal": "Analyze adopter questionnaire data to create a comprehensive lifestyle and compatibility profile that captures activity level, pet ownership experience, home environment characteristics, time availability, and lifestyle factors critical for successful pet matching",
+        "provider": "OpenAI",
+        "model": "gpt-4.1",
+        "temperature": 0.3,
+        "top_p": 1
+      },
+      {
+        "agent_id": "698599317551cb7920ffe90a",
+        "name": "Animal Compatibility Agent",
+        "description": "Evaluates each available animal's behavioral profile, needs, and temperament against the adopter profile to calculate compatibility scores across multiple dimensions (energy match, space needs, experience requirements, special care factors)",
+        "role": "Pet Compatibility Assessment Specialist",
+        "goal": "Analyze available animals' behavioral profiles, care requirements, and temperament characteristics against adopter profiles to calculate multi-dimensional compatibility scores and generate ranked match recommendations with detailed compatibility explanations",
+        "provider": "OpenAI",
+        "model": "gpt-4.1",
+        "temperature": 0.4,
+        "top_p": 1
+      }
+    ]
+  }
+}

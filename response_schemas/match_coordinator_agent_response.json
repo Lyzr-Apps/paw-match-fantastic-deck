@@ -1,0 +1,255 @@
+{
+  "agent_name": "Match Coordinator Agent",
+  "agent_id": "6985995e1caa4e686dd66faf",
+  "agent_purpose": "adoption_match_coordination",
+  "description": "Orchestrates complete adoption matching workflow by coordinating sub-agents and synthesizing comprehensive ranked recommendations with detailed compatibility explanations",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "match_summary": "string",
+      "adopter_profile_summary": "string",
+      "top_recommendations": [
+        {
+          "rank": "number",
+          "animal_name": "string",
+          "animal_id": "string",
+          "species": "string",
+          "breed": "string",
+          "age": "string",
+          "overall_compatibility_score": "number",
+          "compatibility_breakdown": {
+            "energy_match": "number",
+            "space_compatibility": "number",
+            "experience_alignment": "number",
+            "time_requirements_match": "number",
+            "special_care_compatibility": "number"
+          },
+          "why_this_match": "string",
+          "key_strengths": [
+            "string"
+          ],
+          "important_considerations": [
+            "string"
+          ],
+          "next_steps": [
+            "string"
+          ]
+        }
+      ],
+      "total_matches_found": "number",
+      "matching_insights": {
+        "best_fit_category": "string",
+        "lifestyle_highlights": [
+          "string"
+        ],
+        "preparation_recommendations": [
+          "string"
+        ]
+      },
+      "conversation_context": "string"
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string",
+      "sub_agents_consulted": [
+        "string"
+      ],
+      "workflow_version": "string"
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "match_summary": "Your adopter profile strongly favors calm, affectionate, low-maintenance pets that thrive in apartment settings and benefit from a companionship-focused lifestyle. Max the tabby cat is a near-optimal match, combining ideal temperament, environmental compatibility, and your previous experience. Luna the mixed breed dog is also viable due to her adaptability and moderate energy, though your limited dog experience and a need for some extra support/training are notable. Bella the Labrador is not recommended due to significant mismatches in energy, space, and the requirement for an experienced dog owner.",
+      "adopter_profile_summary": "You offer a stable, compassionate, and pet-ready home for calm, lower-energy pets. Previous cat ownership, a part-time work-from-home schedule, and openness to special needs all support successful adoption\u2014especially of cats or dog breeds comfortable with apartment life and moderate activity.",
+      "top_recommendations": [
+        {
+          "rank": 1,
+          "animal_name": "Max",
+          "animal_id": "max_tabby_3yr",
+          "species": "cat",
+          "breed": "tabby",
+          "age": "3 years",
+          "overall_compatibility_score": 93,
+          "compatibility_breakdown": {
+            "energy_match": 95,
+            "space_compatibility": 100,
+            "experience_alignment": 100,
+            "time_requirements_match": 85,
+            "special_care_compatibility": 85
+          },
+          "why_this_match": "Max is a calm, affectionate, and low-maintenance cat\u2014perfect for apartment living and an adopter with prior cat experience. Your routine allows for regular attention and companionship, and your openness to special needs matches well with any additional care Max might require.",
+          "key_strengths": [
+            "High experience alignment",
+            "Low-maintenance needs perfectly fit your schedule and prior knowledge",
+            "Calm temperament matches your preferences"
+          ],
+          "important_considerations": [
+            "Ensure Max's enrichment needs are met within an apartment setting",
+            "Check for any hidden health or behavioral matters during the adoption process"
+          ],
+          "next_steps": [
+            "Schedule an in-person meeting with Max",
+            "Consult with shelter staff about his medical/behavioral background",
+            "If comfortable, begin pre-adoption preparations at home"
+          ]
+        },
+        {
+          "rank": 2,
+          "animal_name": "Luna",
+          "animal_id": "luna_mixed_2yr",
+          "species": "dog",
+          "breed": "mixed",
+          "age": "2 years",
+          "overall_compatibility_score": 72,
+          "compatibility_breakdown": {
+            "energy_match": 70,
+            "space_compatibility": 75,
+            "experience_alignment": 65,
+            "time_requirements_match": 80,
+            "special_care_compatibility": 80
+          },
+          "why_this_match": "Luna\u2019s moderate energy and friendly, adaptable nature make her an option for first-time dog owners in apartments. Your willingness to learn and provide time, combined with Luna\u2019s suitability for indoor living, create a path for positive adoption\u2014provided you seek out additional resources and guidance.",
+          "key_strengths": [
+            "Apartment adaptability",
+            "Affectionate, social temperament",
+            "Room for growth as a new dog owner"
+          ],
+          "important_considerations": [
+            "Expect a learning curve in training and care routines",
+            "More exercise and supervision required than with a cat"
+          ],
+          "next_steps": [
+            "Connect with dog trainers or shelter support for basic care guidance",
+            "Arrange a trial visit with Luna",
+            "Assess compatibility during direct interaction"
+          ]
+        }
+      ],
+      "total_matches_found": 2,
+      "matching_insights": {
+        "best_fit_category": "Calm, affectionate companion animals thriving in apartment environments\u2014especially cats and well-adjusted, moderate-energy dogs.",
+        "lifestyle_highlights": [
+          "Stable home with moderate daily routine",
+          "Prior experience with cats for seamless transition",
+          "Openness to special needs, increasing chance for meaningful placement"
+        ],
+        "preparation_recommendations": [
+          "Cat-proof or dog-proof your space to reduce risk and add enrichment",
+          "Plan a slow, supervised acclimation period",
+          "Prepare supplies tailored to the species and any special care needs"
+        ]
+      },
+      "conversation_context": "Adopter profile and match analysis favor calm, apartment-friendly pets. Previous cat experience and openness to special needs are key advantages. Top recommendations reflect both readiness and potential growth areas for successful adoption."
+    },
+    "metadata": {
+      "agent_name": "Match Coordinator Agent",
+      "timestamp": "2024-06-17T10:23:30Z",
+      "sub_agents_consulted": [
+        "Adopter Profile Agent",
+        "Animal Compatibility Agent"
+      ],
+      "workflow_version": "1.0"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-02-06T07:37:05.569676",
+  "test_message_used": "Hello, provide a sample response",
+  "test_error": "Agent test timed out after 30 seconds",
+  "actual_test_response": {
+    "status": "success",
+    "result": {
+      "match_summary": "Your adopter profile strongly favors calm, affectionate, low-maintenance pets that thrive in apartment settings and benefit from a companionship-focused lifestyle. Max the tabby cat is a near-optimal match, combining ideal temperament, environmental compatibility, and your previous experience. Luna the mixed breed dog is also viable due to her adaptability and moderate energy, though your limited dog experience and a need for some extra support/training are notable. Bella the Labrador is not recommended due to significant mismatches in energy, space, and the requirement for an experienced dog owner.",
+      "adopter_profile_summary": "You offer a stable, compassionate, and pet-ready home for calm, lower-energy pets. Previous cat ownership, a part-time work-from-home schedule, and openness to special needs all support successful adoption\u2014especially of cats or dog breeds comfortable with apartment life and moderate activity.",
+      "top_recommendations": [
+        {
+          "rank": 1,
+          "animal_name": "Max",
+          "animal_id": "max_tabby_3yr",
+          "species": "cat",
+          "breed": "tabby",
+          "age": "3 years",
+          "overall_compatibility_score": 93,
+          "compatibility_breakdown": {
+            "energy_match": 95,
+            "space_compatibility": 100,
+            "experience_alignment": 100,
+            "time_requirements_match": 85,
+            "special_care_compatibility": 85
+          },
+          "why_this_match": "Max is a calm, affectionate, and low-maintenance cat\u2014perfect for apartment living and an adopter with prior cat experience. Your routine allows for regular attention and companionship, and your openness to special needs matches well with any additional care Max might require.",
+          "key_strengths": [
+            "High experience alignment",
+            "Low-maintenance needs perfectly fit your schedule and prior knowledge",
+            "Calm temperament matches your preferences"
+          ],
+          "important_considerations": [
+            "Ensure Max's enrichment needs are met within an apartment setting",
+            "Check for any hidden health or behavioral matters during the adoption process"
+          ],
+          "next_steps": [
+            "Schedule an in-person meeting with Max",
+            "Consult with shelter staff about his medical/behavioral background",
+            "If comfortable, begin pre-adoption preparations at home"
+          ]
+        },
+        {
+          "rank": 2,
+          "animal_name": "Luna",
+          "animal_id": "luna_mixed_2yr",
+          "species": "dog",
+          "breed": "mixed",
+          "age": "2 years",
+          "overall_compatibility_score": 72,
+          "compatibility_breakdown": {
+            "energy_match": 70,
+            "space_compatibility": 75,
+            "experience_alignment": 65,
+            "time_requirements_match": 80,
+            "special_care_compatibility": 80
+          },
+          "why_this_match": "Luna\u2019s moderate energy and friendly, adaptable nature make her an option for first-time dog owners in apartments. Your willingness to learn and provide time, combined with Luna\u2019s suitability for indoor living, create a path for positive adoption\u2014provided you seek out additional resources and guidance.",
+          "key_strengths": [
+            "Apartment adaptability",
+            "Affectionate, social temperament",
+            "Room for growth as a new dog owner"
+          ],
+          "important_considerations": [
+            "Expect a learning curve in training and care routines",
+            "More exercise and supervision required than with a cat"
+          ],
+          "next_steps": [
+            "Connect with dog trainers or shelter support for basic care guidance",
+            "Arrange a trial visit with Luna",
+            "Assess compatibility during direct interaction"
+          ]
+        }
+      ],
+      "total_matches_found": 2,
+      "matching_insights": {
+        "best_fit_category": "Calm, affectionate companion animals thriving in apartment environments\u2014especially cats and well-adjusted, moderate-energy dogs.",
+        "lifestyle_highlights": [
+          "Stable home with moderate daily routine",
+          "Prior experience with cats for seamless transition",
+          "Openness to special needs, increasing chance for meaningful placement"
+        ],
+        "preparation_recommendations": [
+          "Cat-proof or dog-proof your space to reduce risk and add enrichment",
+          "Plan a slow, supervised acclimation period",
+          "Prepare supplies tailored to the species and any special care needs"
+        ]
+      },
+      "conversation_context": "Adopter profile and match analysis favor calm, apartment-friendly pets. Previous cat experience and openness to special needs are key advantages. Top recommendations reflect both readiness and potential growth areas for successful adoption."
+    },
+    "metadata": {
+      "agent_name": "Match Coordinator Agent",
+      "timestamp": "2024-06-17T10:23:30Z",
+      "sub_agents_consulted": [
+        "Adopter Profile Agent",
+        "Animal Compatibility Agent"
+      ],
+      "workflow_version": "1.0"
+    }
+  },
+  "test_passed": true
+}
