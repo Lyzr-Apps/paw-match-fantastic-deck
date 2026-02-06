@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { callAIAgent } from '@/lib/aiAgent'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
-import { Loader2, Check, ChevronLeft, ChevronRight, X, MessageCircle, Send } from 'lucide-react'
+import { Loader2, Check, ChevronLeft, ChevronRight, X, MessageCircle, Send, DollarSign, Calendar, AlertCircle, TrendingUp, Sparkles, Bell, Zap } from 'lucide-react'
 
 // TypeScript interfaces based on actual agent responses
 interface CompatibilityBreakdown {
@@ -61,6 +61,15 @@ interface AssessmentData {
   pastExperienceYears: string
   energyPreference: string
   openToSpecialNeeds: string
+  // Financial readiness
+  monthlyBudget: string
+  emergencyFund: string
+  petLifespanAwareness: string
+  commitmentYears: string
+  // Trial period
+  interestedInTrial: string
+  trialDuration: string
+  trialFeedback: string[]
 }
 
 // Mock animal data for display
@@ -133,7 +142,7 @@ const mockAnimals = [
   }
 ]
 
-type Screen = 'welcome' | 'assessment' | 'summary' | 'results' | 'detail'
+type Screen = 'welcome' | 'assessment' | 'financial' | 'trial' | 'summary' | 'results' | 'detail'
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome')
@@ -163,10 +172,50 @@ export default function Home() {
     petSpecies: '',
     pastExperienceYears: '',
     energyPreference: '',
-    openToSpecialNeeds: ''
+    openToSpecialNeeds: '',
+    // Financial readiness
+    monthlyBudget: '',
+    emergencyFund: '',
+    petLifespanAwareness: '',
+    commitmentYears: '',
+    // Trial period
+    interestedInTrial: '',
+    trialDuration: '',
+    trialFeedback: []
   })
 
+  // Cost estimation state
+  const [estimatedCosts, setEstimatedCosts] = useState({
+    monthly: 0,
+    annual: 0,
+    emergency: 0
+  })
+
+  // Trial period state
+  const [trialActivated, setTrialActivated] = useState(false)
+  const [trialCheckIns, setTrialCheckIns] = useState<{ day: number, notes: string, concerns: string[] }[]>([])
+
   const totalSteps = 5
+
+  // Cost calculator based on animal type and size
+  const calculateCosts = (animalType: string, size: string = 'medium') => {
+    const baseCosts: { [key: string]: { monthly: number, emergency: number } } = {
+      dog_small: { monthly: 125, emergency: 2000 },
+      dog_medium: { monthly: 175, emergency: 3000 },
+      dog_large: { monthly: 225, emergency: 4000 },
+      cat_small: { monthly: 85, emergency: 1500 },
+      cat_medium: { monthly: 95, emergency: 1800 }
+    }
+
+    const key = `${animalType}_${size}`
+    const costs = baseCosts[key] || baseCosts[`${animalType}_medium`] || { monthly: 100, emergency: 2000 }
+
+    setEstimatedCosts({
+      monthly: costs.monthly,
+      annual: costs.monthly * 12,
+      emergency: costs.emergency
+    })
+  }
 
   // Build assessment message for agent
   const buildAssessmentMessage = () => {
@@ -630,11 +679,11 @@ export default function Home() {
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => setCurrentScreen('summary')}
+                    onClick={() => setCurrentScreen('financial')}
                     style={{ backgroundColor: '#7CB69D' }}
                     className="text-white"
                   >
-                    Review Summary
+                    Continue to Financial Check
                   </Button>
                 )}
               </div>
@@ -645,7 +694,460 @@ export default function Home() {
     )
   }
 
-  // SCREEN 3: Assessment Summary
+  // SCREEN 3: Financial Readiness Check
+  if (currentScreen === 'financial') {
+    // Calculate estimated costs when entering this screen
+    if (estimatedCosts.monthly === 0 && formData.energyPreference) {
+      const petType = formData.energyPreference.includes('dog') ? 'dog' : 'cat'
+      calculateCosts(petType, 'medium')
+    }
+
+    const financiallyReady =
+      Number(formData.monthlyBudget) >= estimatedCosts.monthly &&
+      formData.emergencyFund === 'yes' &&
+      formData.petLifespanAwareness !== ''
+
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <div className="container mx-auto px-4 py-8">
+          <Card className="max-w-4xl mx-auto">
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#7CB69D' }}>
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-3xl" style={{ color: '#7CB69D' }}>
+                  Financial & Commitment Readiness
+                </CardTitle>
+              </div>
+              <p className="text-gray-600">Financial strain causes 20-30% of pet returns. Let's ensure you're prepared for the long-term commitment.</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Cost Estimator Tool */}
+              <div className="p-6 rounded-lg" style={{ backgroundColor: '#F0F7F4' }}>
+                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5" style={{ color: '#7CB69D' }} />
+                  Estimated Annual Costs
+                </h3>
+                <div className="grid md:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-white p-4 rounded-lg text-center">
+                    <p className="text-sm text-gray-600 mb-1">Monthly</p>
+                    <p className="text-2xl font-bold" style={{ color: '#7CB69D' }}>
+                      ${estimatedCosts.monthly}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Food, supplies, routine care</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg text-center">
+                    <p className="text-sm text-gray-600 mb-1">Annual</p>
+                    <p className="text-2xl font-bold" style={{ color: '#7CB69D' }}>
+                      ${estimatedCosts.annual}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Total yearly expenses</p>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg text-center">
+                    <p className="text-sm text-gray-600 mb-1">Emergency Fund</p>
+                    <p className="text-2xl font-bold" style={{ color: '#E07A5F' }}>
+                      ${estimatedCosts.emergency}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Recommended reserve</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 italic">
+                  Costs vary by breed, size, age, and health needs. This is a baseline estimate.
+                </p>
+              </div>
+
+              {/* Budget Assessment */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  What is your monthly budget for pet care? (food, supplies, routine vet visits)
+                </label>
+                <div className="flex items-center gap-3">
+                  <DollarSign className="w-5 h-5 text-gray-400" />
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.monthlyBudget}
+                    onChange={(e) => setFormData(prev => ({ ...prev, monthlyBudget: e.target.value }))}
+                    placeholder="Monthly budget in USD"
+                    className="flex-1"
+                  />
+                </div>
+                {formData.monthlyBudget && Number(formData.monthlyBudget) < estimatedCosts.monthly && (
+                  <div className="flex items-start gap-2 mt-2 p-3 bg-orange-50 rounded-lg">
+                    <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-orange-700">
+                      Your budget is below the estimated monthly cost of ${estimatedCosts.monthly}. Consider adjusting or choosing a lower-cost pet option.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Emergency Fund */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Do you have an emergency fund of at least ${estimatedCosts.emergency} for unexpected vet bills?
+                </label>
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    variant={formData.emergencyFund === 'yes' ? 'default' : 'outline'}
+                    onClick={() => setFormData(prev => ({ ...prev, emergencyFund: 'yes' }))}
+                    style={formData.emergencyFund === 'yes' ? { backgroundColor: '#7CB69D' } : {}}
+                    className={formData.emergencyFund === 'yes' ? 'text-white' : ''}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={formData.emergencyFund === 'no' ? 'default' : 'outline'}
+                    onClick={() => setFormData(prev => ({ ...prev, emergencyFund: 'no' }))}
+                  >
+                    No
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={formData.emergencyFund === 'working-on-it' ? 'default' : 'outline'}
+                    onClick={() => setFormData(prev => ({ ...prev, emergencyFund: 'working-on-it' }))}
+                  >
+                    Working on it
+                  </Button>
+                </div>
+              </div>
+
+              {/* Lifespan Awareness Quiz */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  How long is the typical lifespan of the pet you're considering?
+                </label>
+                <select
+                  className="w-full border rounded-md p-2"
+                  value={formData.petLifespanAwareness}
+                  onChange={(e) => setFormData(prev => ({ ...prev, petLifespanAwareness: e.target.value }))}
+                >
+                  <option value="">Select...</option>
+                  <option value="5-10">5-10 years</option>
+                  <option value="10-15">10-15 years</option>
+                  <option value="15-20">15-20 years</option>
+                  <option value="20+">20+ years</option>
+                </select>
+                {formData.petLifespanAwareness && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    {formData.petLifespanAwareness === '10-15' || formData.petLifespanAwareness === '15-20' ?
+                      'Correct! Most dogs live 10-15 years, while cats often live 15-20 years. This is a long-term commitment.' :
+                      'Typical lifespans: Dogs 10-15 years, Cats 15-20 years. Be prepared for this commitment.'}
+                  </p>
+                )}
+              </div>
+
+              {/* Commitment Years */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Can you commit to caring for a pet for the next 10-20 years?
+                </label>
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    variant={formData.commitmentYears === 'yes' ? 'default' : 'outline'}
+                    onClick={() => setFormData(prev => ({ ...prev, commitmentYears: 'yes' }))}
+                    style={formData.commitmentYears === 'yes' ? { backgroundColor: '#7CB69D' } : {}}
+                    className={formData.commitmentYears === 'yes' ? 'text-white' : ''}
+                  >
+                    Yes, absolutely
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={formData.commitmentYears === 'uncertain' ? 'default' : 'outline'}
+                    onClick={() => setFormData(prev => ({ ...prev, commitmentYears: 'uncertain' }))}
+                  >
+                    Uncertain
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={formData.commitmentYears === 'no' ? 'default' : 'outline'}
+                    onClick={() => setFormData(prev => ({ ...prev, commitmentYears: 'no' }))}
+                  >
+                    No
+                  </Button>
+                </div>
+              </div>
+
+              {/* Readiness Summary */}
+              {formData.monthlyBudget && formData.emergencyFund && formData.commitmentYears && (
+                <div className={`p-4 rounded-lg ${financiallyReady ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                  <div className="flex items-start gap-3">
+                    {financiallyReady ? (
+                      <Check className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    )}
+                    <div>
+                      <h4 className={`font-semibold mb-1 ${financiallyReady ? 'text-green-800' : 'text-yellow-800'}`}>
+                        {financiallyReady ? 'Financially Ready!' : 'Consider These Points'}
+                      </h4>
+                      <p className={`text-sm ${financiallyReady ? 'text-green-700' : 'text-yellow-700'}`}>
+                        {financiallyReady
+                          ? 'You appear financially prepared for pet ownership. Continue to the trial period option.'
+                          : 'Review your budget and emergency fund. Consider starting with a lower-cost pet or waiting until you\'re more financially prepared.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation */}
+              <div className="flex justify-between pt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentScreen('assessment')}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Back to Assessment
+                </Button>
+
+                <Button
+                  onClick={() => setCurrentScreen('trial')}
+                  style={{ backgroundColor: '#7CB69D' }}
+                  className="text-white"
+                >
+                  Continue to Trial Period
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // SCREEN 4: Trial Period Simulation
+  if (currentScreen === 'trial') {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <div className="container mx-auto px-4 py-8">
+          <Card className="max-w-4xl mx-auto">
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#7CB69D' }}>
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-3xl" style={{ color: '#7CB69D' }}>
+                  Trial Period Preview
+                </CardTitle>
+              </div>
+              <p className="text-gray-600">Test compatibility without full commitment. Real-world exposure reveals hidden issues like allergies or behavioral mismatches.</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Trial Period Explanation */}
+              <div className="p-6 rounded-lg" style={{ backgroundColor: '#F0F7F4' }}>
+                <h3 className="font-semibold text-lg mb-3">How Trial Periods Work</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: '#7CB69D' }}>
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium">Short-term Fostering</p>
+                      <p className="text-sm text-gray-600">Take a pet home for a trial weekend (2-7 days) to experience daily life together</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: '#7CB69D' }}>
+                      2
+                    </div>
+                    <div>
+                      <p className="font-medium">Daily Check-ins</p>
+                      <p className="text-sm text-gray-600">Complete guided feedback forms via our app to track compatibility</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: '#7CB69D' }}>
+                      3
+                    </div>
+                    <div>
+                      <p className="font-medium">Informed Decision</p>
+                      <p className="text-sm text-gray-600">Decide to adopt or return without pressure, preventing future returns</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Interest in Trial */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Would you be interested in a trial period before finalizing adoption?
+                </label>
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    variant={formData.interestedInTrial === 'yes' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, interestedInTrial: 'yes' }))
+                      setTrialActivated(false)
+                    }}
+                    style={formData.interestedInTrial === 'yes' ? { backgroundColor: '#7CB69D' } : {}}
+                    className={formData.interestedInTrial === 'yes' ? 'text-white' : ''}
+                  >
+                    Yes, I'd like to try
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={formData.interestedInTrial === 'no' ? 'default' : 'outline'}
+                    onClick={() => setFormData(prev => ({ ...prev, interestedInTrial: 'no' }))}
+                  >
+                    No, skip trial
+                  </Button>
+                </div>
+              </div>
+
+              {/* Trial Duration Selection */}
+              {formData.interestedInTrial === 'yes' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Preferred trial duration?
+                  </label>
+                  <select
+                    className="w-full border rounded-md p-2"
+                    value={formData.trialDuration}
+                    onChange={(e) => setFormData(prev => ({ ...prev, trialDuration: e.target.value }))}
+                  >
+                    <option value="">Select duration...</option>
+                    <option value="weekend">Weekend (2-3 days)</option>
+                    <option value="week">One week (7 days)</option>
+                    <option value="two-weeks">Two weeks (14 days)</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Simulate Trial Check-in */}
+              {formData.interestedInTrial === 'yes' && formData.trialDuration && !trialActivated && (
+                <div className="p-4 bg-white border-2 border-dashed rounded-lg" style={{ borderColor: '#7CB69D' }}>
+                  <h4 className="font-semibold mb-2">Preview Trial Experience</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Click below to simulate what a trial weekend check-in would look like
+                  </p>
+                  <Button
+                    onClick={() => setTrialActivated(true)}
+                    style={{ backgroundColor: '#E07A5F' }}
+                    className="text-white"
+                  >
+                    Start Trial Simulation
+                  </Button>
+                </div>
+              )}
+
+              {/* Trial Simulation Form */}
+              {trialActivated && (
+                <div className="p-6 bg-white border-2 rounded-lg" style={{ borderColor: '#7CB69D' }}>
+                  <h4 className="font-semibold text-lg mb-4">Day 2 Check-in Form</h4>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">How is the pet adjusting to your home?</label>
+                      <select className="w-full border rounded-md p-2 text-sm">
+                        <option>Excellent - very comfortable</option>
+                        <option>Good - settling in well</option>
+                        <option>Fair - some nervousness</option>
+                        <option>Poor - struggling to adjust</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Any concerns so far? (Check all that apply)</label>
+                      <div className="space-y-2">
+                        {['Allergies or reactions', 'Behavioral issues', 'Energy level mismatch', 'Space constraints', 'Time commitment', 'None'].map((concern) => (
+                          <label key={concern} className="flex items-center gap-2 text-sm">
+                            <input type="checkbox" className="rounded" />
+                            {concern}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Additional notes:</label>
+                      <textarea
+                        className="w-full border rounded-md p-2 text-sm"
+                        rows={3}
+                        placeholder="Share any observations, concerns, or positive experiences..."
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button
+                        size="sm"
+                        style={{ backgroundColor: '#7CB69D' }}
+                        className="text-white"
+                        onClick={() => {
+                          setTrialActivated(false)
+                          alert('Check-in submitted! In a real trial, this feedback helps match coordinators support you.')
+                        }}
+                      >
+                        Submit Check-in
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setTrialActivated(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Benefits Highlight */}
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold mb-2 text-blue-900">Why Trial Periods Matter</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Reduces return rates by revealing compatibility issues early</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Tests for allergies and behavioral fit in real conditions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Gives you confidence before making the final commitment</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>Shelter receives feedback to better match future adopters</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex justify-between pt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentScreen('financial')}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Back to Financial Check
+                </Button>
+
+                <Button
+                  onClick={() => setCurrentScreen('summary')}
+                  style={{ backgroundColor: '#7CB69D' }}
+                  className="text-white"
+                >
+                  Review Summary
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // SCREEN 5: Assessment Summary
   if (currentScreen === 'summary') {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
@@ -703,15 +1205,37 @@ export default function Home() {
                     <p><span className="font-medium">Other Pets:</span> {formData.otherPets === 'yes' ? formData.petTypes : 'None'}</p>
                   </div>
                 </div>
+
+                {/* Financial Readiness */}
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold mb-3" style={{ color: '#7CB69D' }}>Financial Readiness</h3>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="font-medium">Monthly Budget:</span> ${formData.monthlyBudget || 'Not specified'}</p>
+                    <p><span className="font-medium">Emergency Fund:</span> {formData.emergencyFund === 'yes' ? 'Yes' : formData.emergencyFund === 'no' ? 'No' : 'Working on it'}</p>
+                    <p><span className="font-medium">Lifespan Awareness:</span> {formData.petLifespanAwareness || 'Not specified'}</p>
+                    <p><span className="font-medium">Long-term Commitment:</span> {formData.commitmentYears === 'yes' ? 'Committed' : formData.commitmentYears === 'uncertain' ? 'Uncertain' : 'No'}</p>
+                  </div>
+                </div>
+
+                {/* Trial Period Interest */}
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-semibold mb-3" style={{ color: '#7CB69D' }}>Trial Period</h3>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="font-medium">Interested in Trial:</span> {formData.interestedInTrial === 'yes' ? 'Yes' : 'No'}</p>
+                    {formData.interestedInTrial === 'yes' && (
+                      <p><span className="font-medium">Preferred Duration:</span> {formData.trialDuration ? formData.trialDuration.charAt(0).toUpperCase() + formData.trialDuration.slice(1) : 'Not specified'}</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-between mt-8">
                 <Button
                   variant="outline"
-                  onClick={() => setCurrentScreen('assessment')}
+                  onClick={() => setCurrentScreen('trial')}
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
-                  Edit Assessment
+                  Back to Trial Period
                 </Button>
 
                 <Button
@@ -738,7 +1262,7 @@ export default function Home() {
     )
   }
 
-  // SCREEN 4: Match Results Dashboard
+  // SCREEN 6: Match Results Dashboard
   if (currentScreen === 'results') {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
@@ -747,6 +1271,22 @@ export default function Home() {
             <h1 className="text-4xl font-bold mb-2" style={{ color: '#7CB69D' }}>Your Perfect Matches</h1>
             <p className="text-gray-600">Based on your lifestyle and preferences</p>
           </div>
+
+          {/* Trial Period Reminder */}
+          {formData.interestedInTrial === 'yes' && (
+            <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
+              <div className="flex items-start gap-3">
+                <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">Trial Period Available</h3>
+                  <p className="text-sm text-blue-800">
+                    You indicated interest in a {formData.trialDuration} trial period. When contacting the shelter about any match,
+                    ask about their trial fostering program to test compatibility before finalizing adoption.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-6">
             {/* Left Sidebar - Filters */}
@@ -939,7 +1479,7 @@ export default function Home() {
     )
   }
 
-  // SCREEN 5: Compatibility Detail
+  // SCREEN 7: Compatibility Detail
   if (currentScreen === 'detail' && selectedAnimal) {
     const mockAnimal = mockAnimals.find(a => a.animal_id === selectedAnimal.animal_id)
     const breakdown = selectedAnimal.compatibility_breakdown
