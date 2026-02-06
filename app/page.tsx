@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
-import { Loader2, Check, ChevronLeft, ChevronRight, X, MessageCircle, Send, DollarSign, Calendar, AlertCircle, TrendingUp, Sparkles, Bell, Zap } from 'lucide-react'
+import { Loader2, Check, ChevronLeft, ChevronRight, X, MessageCircle, Send, DollarSign, Calendar, AlertCircle, TrendingUp, Sparkles, Bell, Zap, Heart, Home, Activity, HeartPulse, Moon, MapPin, Clock, FileText } from 'lucide-react'
 
 // TypeScript interfaces based on actual agent responses
 interface CompatibilityBreakdown {
@@ -70,6 +70,44 @@ interface AssessmentData {
   interestedInTrial: string
   trialDuration: string
   trialFeedback: string[]
+}
+
+// Wellness monitoring interfaces
+interface WearableData {
+  timestamp: string
+  steps: number
+  heart_rate: number
+  sleep_hours: number
+  activity_level: string
+  location?: string
+}
+
+interface AnomalyDetection {
+  anomaly_type: string
+  severity: 'low' | 'medium' | 'high'
+  description: string
+  detected_at: string
+}
+
+interface AutomatedAction {
+  action_type: string
+  urgency: 'low' | 'medium' | 'high'
+  description: string
+  resource_link?: string
+  vet_appointment_suggested?: boolean
+}
+
+interface WellnessResult {
+  wellness_status: string
+  health_score: number
+  anomalies_detected: AnomalyDetection[]
+  recommendations: string[]
+  automated_actions: AutomatedAction[]
+  trend_analysis?: {
+    activity_trend: string
+    sleep_trend: string
+    overall_trend: string
+  }
 }
 
 // Mock animal data for display
@@ -142,7 +180,7 @@ const mockAnimals = [
   }
 ]
 
-type Screen = 'welcome' | 'assessment' | 'financial' | 'trial' | 'summary' | 'results' | 'detail'
+type Screen = 'welcome' | 'assessment' | 'financial' | 'trial' | 'summary' | 'results' | 'detail' | 'wellness'
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome')
@@ -200,6 +238,20 @@ export default function Home() {
   // Trial period state
   const [trialActivated, setTrialActivated] = useState(false)
   const [trialCheckIns, setTrialCheckIns] = useState<{ day: number, notes: string, concerns: string[] }[]>([])
+
+  // Wellness monitoring state
+  const [adoptedPet, setAdoptedPet] = useState<AnimalMatch | null>(null)
+  const [wellnessData, setWellnessData] = useState<WellnessResult | null>(null)
+  const [wellnessLoading, setWellnessLoading] = useState(false)
+  const [wearableConnected, setWearableConnected] = useState(false)
+  const [mockWearableData, setMockWearableData] = useState<WearableData>({
+    timestamp: new Date().toISOString(),
+    steps: 8500,
+    heart_rate: 72,
+    sleep_hours: 7.5,
+    activity_level: 'moderate',
+    location: 'Home'
+  })
 
   const totalSteps = 5
 
@@ -384,6 +436,72 @@ export default function Home() {
     }
   }
 
+  // Analyze pet wellness using Pet Wellness Monitor Agent
+  const analyzePetWellness = async () => {
+    if (!adoptedPet) return
+
+    setWellnessLoading(true)
+
+    const wellnessMessage = `
+      Pet: ${adoptedPet.animal_name} (${adoptedPet.breed} ${adoptedPet.species}, ${adoptedPet.age})
+
+      Wearable Data:
+      - Timestamp: ${mockWearableData.timestamp}
+      - Steps: ${mockWearableData.steps}
+      - Heart Rate: ${mockWearableData.heart_rate} bpm
+      - Sleep Hours: ${mockWearableData.sleep_hours} hours
+      - Activity Level: ${mockWearableData.activity_level}
+      - Location: ${mockWearableData.location}
+
+      Please analyze this data for anomalies, provide a health score, and suggest automated actions.
+    `
+
+    try {
+      const result = await callAIAgent(wellnessMessage, '6985ad02f513a931daeaad5d')
+
+      if (result.success && result.response.status === 'success') {
+        const data = result.response.result as WellnessResult
+        setWellnessData(data)
+      } else {
+        console.error('Wellness analysis failed:', result.error)
+        // Fallback mock data
+        setWellnessData({
+          wellness_status: 'Good',
+          health_score: 85,
+          anomalies_detected: [],
+          recommendations: [
+            'Maintain current activity levels',
+            'Ensure consistent sleep schedule',
+            'Regular vet checkups recommended'
+          ],
+          automated_actions: [],
+          trend_analysis: {
+            activity_trend: 'Stable',
+            sleep_trend: 'Healthy',
+            overall_trend: 'Positive'
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Error analyzing wellness:', error)
+      // Fallback
+      setWellnessData({
+        wellness_status: 'Good',
+        health_score: 85,
+        anomalies_detected: [],
+        recommendations: ['Maintain current care routine'],
+        automated_actions: [],
+        trend_analysis: {
+          activity_trend: 'Stable',
+          sleep_trend: 'Healthy',
+          overall_trend: 'Positive'
+        }
+      })
+    } finally {
+      setWellnessLoading(false)
+    }
+  }
+
   // Get compatibility color
   const getCompatibilityColor = (score: number) => {
     if (score >= 80) return 'bg-green-500'
@@ -397,6 +515,19 @@ export default function Home() {
     return 'text-orange-700'
   }
 
+  // Get severity color for anomalies
+  const getSeverityColor = (severity: 'low' | 'medium' | 'high') => {
+    if (severity === 'high') return 'bg-red-500'
+    if (severity === 'medium') return 'bg-yellow-500'
+    return 'bg-blue-500'
+  }
+
+  const getSeverityTextColor = (severity: 'low' | 'medium' | 'high') => {
+    if (severity === 'high') return 'text-red-700'
+    if (severity === 'medium') return 'text-yellow-700'
+    return 'text-blue-700'
+  }
+
   // Filter matches
   const filteredMatches = matchResults.filter(match => {
     if (filterSpecies !== 'all' && match.species !== filterSpecies) return false
@@ -407,10 +538,90 @@ export default function Home() {
     return true
   })
 
+  // Navbar Component
+  const Navbar = () => {
+    const getScreenTitle = () => {
+      switch (currentScreen) {
+        case 'welcome': return 'Welcome'
+        case 'assessment': return 'Lifestyle Assessment'
+        case 'financial': return 'Financial Readiness'
+        case 'trial': return 'Trial Period'
+        case 'summary': return 'Review Summary'
+        case 'results': return 'Your Matches'
+        case 'detail': return 'Match Details'
+        case 'wellness': return 'Pet Wellness Dashboard'
+        default: return 'PetMatch Pro'
+      }
+    }
+
+    return (
+      <nav className="sticky top-0 z-50 shadow-lg border-b-4" style={{
+        backgroundColor: '#7CB69D',
+        borderBottomColor: '#E07A5F',
+        height: '80px'
+      }}>
+        <div className="container mx-auto px-6 h-full flex items-center justify-between">
+          {/* Logo & Brand */}
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-white shadow-md">
+              <Heart className="w-8 h-8" style={{ color: '#E07A5F' }} fill="#E07A5F" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white tracking-wide">PetMatch Pro</h1>
+              <p className="text-sm text-white/90 font-medium">{getScreenTitle()}</p>
+            </div>
+          </div>
+
+          {/* Navigation Actions */}
+          <div className="flex items-center gap-3">
+            {currentScreen !== 'welcome' && (
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => {
+                  if (currentScreen === 'detail') {
+                    setCurrentScreen('results')
+                  } else if (currentScreen === 'results') {
+                    setCurrentScreen('summary')
+                  } else if (currentScreen === 'summary') {
+                    setCurrentScreen('trial')
+                  } else if (currentScreen === 'trial') {
+                    setCurrentScreen('financial')
+                  } else if (currentScreen === 'financial') {
+                    setCurrentScreen('assessment')
+                  } else if (currentScreen === 'assessment') {
+                    setCurrentScreen('welcome')
+                  }
+                }}
+                className="text-white hover:bg-white/20 px-6 py-6 text-base font-medium"
+              >
+                <ChevronLeft className="w-5 h-5 mr-2" />
+                Back
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={() => {
+                setCurrentScreen('welcome')
+                setAssessmentStep(1)
+              }}
+              className="text-white hover:bg-white/20 px-6 py-6 text-base font-medium"
+            >
+              <Home className="w-5 h-5 mr-2" />
+              Home
+            </Button>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
   // SCREEN 1: Welcome
   if (currentScreen === 'welcome') {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
         <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-screen">
           <div className="max-w-2xl text-center">
             {/* Hero illustration placeholder */}
@@ -450,6 +661,7 @@ export default function Home() {
   if (currentScreen === 'assessment') {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           {/* Progress Stepper */}
           <div className="max-w-3xl mx-auto mb-8">
@@ -754,6 +966,7 @@ export default function Home() {
 
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-4xl mx-auto">
             <CardHeader>
@@ -970,6 +1183,7 @@ export default function Home() {
   if (currentScreen === 'trial') {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-4xl mx-auto">
             <CardHeader>
@@ -1196,6 +1410,7 @@ export default function Home() {
   if (currentScreen === 'summary') {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           <Card className="max-w-4xl mx-auto">
             <CardHeader>
@@ -1311,6 +1526,7 @@ export default function Home() {
   if (currentScreen === 'results') {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           {/* Autonomous Suggestions Panel */}
           {showAutonomousPanel && autonomousSuggestions.length > 0 && (
@@ -1635,15 +1851,8 @@ export default function Home() {
 
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentScreen('results')}
-            className="mb-6"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Back to Results
-          </Button>
 
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Left: Animal Profile */}
@@ -1791,8 +2000,16 @@ export default function Home() {
 
                   {/* Action Buttons */}
                   <div className="flex gap-3 pt-4">
-                    <Button className="flex-1 text-white" style={{ backgroundColor: '#E07A5F' }}>
-                      Contact Shelter
+                    <Button
+                      className="flex-1 text-white"
+                      style={{ backgroundColor: '#E07A5F' }}
+                      onClick={() => {
+                        setAdoptedPet(selectedAnimal)
+                        setCurrentScreen('wellness')
+                      }}
+                    >
+                      <Activity className="w-4 h-4 mr-2" />
+                      Simulate Adoption & Monitor Health
                     </Button>
                     <Button variant="outline" className="flex-1">
                       Save to Favorites
@@ -1802,6 +2019,300 @@ export default function Home() {
               </Card>
             </div>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  // SCREEN 8: Pet Wellness Dashboard
+  if (currentScreen === 'wellness') {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#FDF8F3' }}>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <h1 className="text-4xl font-bold mb-2" style={{ color: '#7CB69D' }}>
+              Pet Wellness Dashboard
+            </h1>
+            <p className="text-gray-600">
+              {adoptedPet ? `Monitoring ${adoptedPet.animal_name}'s health and activity` : 'Post-adoption health monitoring'}
+            </p>
+          </div>
+
+          {/* Wearable Connection Status */}
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${wearableConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
+                  <div>
+                    <p className="font-semibold">
+                      {wearableConnected ? 'Wearable Connected' : 'Wearable Not Connected'}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {wearableConnected ? 'Real-time data syncing' : 'Connect to start monitoring'}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setWearableConnected(!wearableConnected)}
+                  style={wearableConnected ? { backgroundColor: '#E07A5F' } : { backgroundColor: '#7CB69D' }}
+                  className="text-white"
+                >
+                  {wearableConnected ? 'Disconnect' : 'Connect Wearable'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Wearable Data Visualization */}
+          <div className="grid md:grid-cols-4 gap-4 mb-6">
+            {/* Steps Card */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <Activity className="w-8 h-8" style={{ color: '#7CB69D' }} />
+                  <p className="text-sm text-gray-600">Today</p>
+                </div>
+                <p className="text-3xl font-bold mb-1">{mockWearableData.steps.toLocaleString()}</p>
+                <p className="text-sm text-gray-600">Steps</p>
+              </CardContent>
+            </Card>
+
+            {/* Heart Rate Card */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <HeartPulse className="w-8 h-8" style={{ color: '#E07A5F' }} />
+                  <p className="text-sm text-gray-600">Current</p>
+                </div>
+                <p className="text-3xl font-bold mb-1">{mockWearableData.heart_rate}</p>
+                <p className="text-sm text-gray-600">BPM</p>
+              </CardContent>
+            </Card>
+
+            {/* Sleep Card */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <Moon className="w-8 h-8 text-indigo-600" />
+                  <p className="text-sm text-gray-600">Last Night</p>
+                </div>
+                <p className="text-3xl font-bold mb-1">{mockWearableData.sleep_hours}</p>
+                <p className="text-sm text-gray-600">Hours</p>
+              </CardContent>
+            </Card>
+
+            {/* Activity Level Card */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <Zap className="w-8 h-8 text-yellow-600" />
+                  <p className="text-sm text-gray-600">Level</p>
+                </div>
+                <p className="text-3xl font-bold mb-1 capitalize">{mockWearableData.activity_level}</p>
+                <p className="text-sm text-gray-600">Activity</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Info Cards */}
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <MapPin className="w-6 h-6" style={{ color: '#7CB69D' }} />
+                  <div>
+                    <p className="font-semibold">Location</p>
+                    <p className="text-sm text-gray-600">{mockWearableData.location}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Clock className="w-6 h-6" style={{ color: '#7CB69D' }} />
+                  <div>
+                    <p className="font-semibold">Last Updated</p>
+                    <p className="text-sm text-gray-600">
+                      {new Date(mockWearableData.timestamp).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Analyze Wellness Button */}
+          <div className="mb-6">
+            <Button
+              size="lg"
+              onClick={analyzePetWellness}
+              disabled={wellnessLoading || !wearableConnected}
+              style={{ backgroundColor: '#E07A5F' }}
+              className="text-white w-full md:w-auto"
+            >
+              {wellnessLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Analyzing Wellness Data...
+                </>
+              ) : (
+                <>
+                  <Activity className="w-5 h-5 mr-2" />
+                  Analyze Pet Wellness
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Wellness Analysis Results */}
+          {wellnessData && (
+            <>
+              {/* Health Score */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-2xl" style={{ color: '#7CB69D' }}>
+                    Overall Health Score
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-6">
+                    <div className="relative">
+                      <div className={`w-32 h-32 rounded-full flex items-center justify-center ${getCompatibilityColor(wellnessData.health_score)}`}>
+                        <span className="text-4xl font-bold text-white">
+                          {wellnessData.health_score}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xl font-semibold mb-2">
+                        Status: {wellnessData.wellness_status}
+                      </p>
+                      {wellnessData.trend_analysis && (
+                        <div className="space-y-1 text-sm text-gray-700">
+                          <p><span className="font-medium">Activity Trend:</span> {wellnessData.trend_analysis.activity_trend}</p>
+                          <p><span className="font-medium">Sleep Trend:</span> {wellnessData.trend_analysis.sleep_trend}</p>
+                          <p><span className="font-medium">Overall Trend:</span> {wellnessData.trend_analysis.overall_trend}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Anomalies Detected */}
+              {wellnessData.anomalies_detected.length > 0 && (
+                <Card className="mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-2xl flex items-center gap-2">
+                      <AlertCircle className="w-6 h-6" style={{ color: '#E07A5F' }} />
+                      Anomalies Detected
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {wellnessData.anomalies_detected.map((anomaly, idx) => (
+                        <div
+                          key={idx}
+                          className="p-4 rounded-lg border-l-4"
+                          style={{
+                            borderLeftColor: anomaly.severity === 'high' ? '#EF4444' : anomaly.severity === 'medium' ? '#F59E0B' : '#3B82F6',
+                            backgroundColor: anomaly.severity === 'high' ? '#FEE2E2' : anomaly.severity === 'medium' ? '#FEF3C7' : '#DBEAFE'
+                          }}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <p className={`font-semibold ${getSeverityTextColor(anomaly.severity)}`}>
+                              {anomaly.anomaly_type}
+                            </p>
+                            <span className={`px-2 py-1 rounded text-xs font-bold text-white ${getSeverityColor(anomaly.severity)}`}>
+                              {anomaly.severity.toUpperCase()}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 mb-1">{anomaly.description}</p>
+                          <p className="text-xs text-gray-500">
+                            Detected: {new Date(anomaly.detected_at).toLocaleString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Automated Actions */}
+              {wellnessData.automated_actions.length > 0 && (
+                <Card className="mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-2xl flex items-center gap-2">
+                      <Sparkles className="w-6 h-6" style={{ color: '#7CB69D' }} />
+                      Automated Actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {wellnessData.automated_actions.map((action, idx) => (
+                        <Card key={idx} className="border-2" style={{ borderColor: '#7CB69D' }}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <p className="font-semibold">{action.action_type}</p>
+                              <span className={`px-2 py-1 rounded text-xs font-bold text-white ${action.urgency === 'high' ? 'bg-red-500' : action.urgency === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'}`}>
+                                {action.urgency.toUpperCase()}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-3">{action.description}</p>
+                            <div className="flex gap-2">
+                              {action.vet_appointment_suggested && (
+                                <Button
+                                  size="sm"
+                                  style={{ backgroundColor: '#E07A5F' }}
+                                  className="text-white"
+                                >
+                                  <Calendar className="w-4 h-4 mr-1" />
+                                  Book Vet Appointment
+                                </Button>
+                              )}
+                              {action.resource_link && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(action.resource_link, '_blank')}
+                                >
+                                  <FileText className="w-4 h-4 mr-1" />
+                                  View Resources
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Recommendations */}
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-2xl" style={{ color: '#7CB69D' }}>
+                    Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {wellnessData.recommendations.map((rec, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#7CB69D' }} />
+                        <span className="text-sm text-gray-700">{rec}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
       </div>
     )

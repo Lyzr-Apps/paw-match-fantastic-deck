@@ -30,6 +30,18 @@
     "sub_agents": {
       "adopter_profile": "response_schemas/adopter_profile_agent_response.json",
       "animal_compatibility": "response_schemas/animal_compatibility_agent_response.json"
+    },
+    "standalone_agents": {
+      "pet_wellness_monitor": "response_schemas/pet_wellness_monitor_agent_response.json"
     }
-  }
+  },
+  "standalone_agents": [
+    {
+      "agent_id": "6985ad02f513a931daeaad5d",
+      "name": "Pet Wellness Monitor Agent",
+      "role": "standalone",
+      "description": "Monitor adopted pet health and behavior through wearable data, detect anomalies, and trigger automated actions",
+      "trigger": "Post-adoption pet wellness monitoring"
+    }
+  ]
 }

@@ -106,6 +106,20 @@
         "temperature": 0.4,
         "top_p": 1
       }
+    ],
+    "standalone_agents": [
+      {
+        "agent_id": "6985ad02f513a931daeaad5d",
+        "name": "Pet Wellness Monitor Agent",
+        "description": "Monitor adopted pet health and behavior through wearable data, detect anomalies, and trigger automated actions",
+        "role": "Post-adoption wellness monitoring specialist",
+        "goal": "Analyze pet activity data from wearables and user logs to identify health concerns, suggest training, and automate support actions",
+        "provider": "OpenAI",
+        "model": "gpt-4o",
+        "temperature": 0.3,
+        "top_p": 1,
+        "trigger": "Post-adoption pet wellness monitoring"
+      }
     ]
   }
 }
